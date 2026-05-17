@@ -6,6 +6,7 @@ const slider = document.getElementById("pitch");
 const toneValue = document.getElementById("toneValue");
 const resetBtn = document.getElementById("reset");
 const exportBtn = document.getElementById("exportMp3");
+const langBtn = document.getElementById("langToggle");
 const avatar = document.getElementById("avatar");
 
 avatar.src = "icons/avatar.png";
@@ -52,7 +53,14 @@ async function push(value) {
 async function init() {
   const response = await chrome.runtime.sendMessage({ action: "getSettings" });
   const settings = response?.settings || {};
-  render(clamp(fromSettings(settings)));
+  const initial = clamp(fromSettings(settings));
+  // Persist back if storage had out-of-range or stale fractional data, so the
+  // UI value and persisted value stay in sync.
+  if (initial !== fromSettings(settings)) {
+    push(initial);
+  } else {
+    render(initial);
+  }
 
   slider.addEventListener("input", () => {
     push(clamp(Number(slider.value)));
@@ -69,6 +77,10 @@ async function init() {
 
   exportBtn.addEventListener("click", () => {
     alert("Tính năng Xuất MP3 đang phát triển.");
+  });
+
+  langBtn.addEventListener("click", () => {
+    alert("Tính năng đổi ngôn ngữ đang phát triển.");
   });
 }
 

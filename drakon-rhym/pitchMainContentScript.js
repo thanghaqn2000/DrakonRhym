@@ -25,6 +25,7 @@
   // we observe one, then drain.
   let userGestureSeen = false;
   const ctxAwaitingResume = new Set();
+  const GESTURE_EVENTS = ["pointerdown", "mousedown", "keydown", "touchstart"];
 
   function safeResume(ctx) {
     if (!ctx || ctx.state !== "suspended") return;
@@ -38,6 +39,9 @@
   function onFirstGesture() {
     if (userGestureSeen) return;
     userGestureSeen = true;
+    GESTURE_EVENTS.forEach((ev) => {
+      window.removeEventListener(ev, onFirstGesture, true);
+    });
     ctxAwaitingResume.forEach((ctx) => {
       if (ctx && ctx.state === "suspended") {
         ctx.resume().catch(() => {});
@@ -46,11 +50,10 @@
     ctxAwaitingResume.clear();
   }
 
-  ["pointerdown", "mousedown", "keydown", "touchstart"].forEach((ev) => {
+  GESTURE_EVENTS.forEach((ev) => {
     window.addEventListener(ev, onFirstGesture, {
       capture: true,
       passive: true,
-      once: true,
     });
   });
 
