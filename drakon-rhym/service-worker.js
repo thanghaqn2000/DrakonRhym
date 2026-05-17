@@ -6,15 +6,68 @@ const DEFAULT_SETTINGS = {
 
 const SETTINGS_KEY = "settings";
 
+// chrome.storage.sync caps writes at 120/min. Slider drags can emit dozens
+// of input events per second, so we cache settings in memory, broadcast to
+// content scripts immediately, and debounce the persist.
+const SAVE_DEBOUNCE_MS = 400;
+const SAVE_MAX_WAIT_MS = 1500;
+
+let cachedSettings = null;
+let loadingPromise = null;
+let saveTimer = null;
+let firstPendingAt = 0;
+
 async function getSettings() {
-  const data = await chrome.storage.sync.get(SETTINGS_KEY);
-  return { ...DEFAULT_SETTINGS, ...(data[SETTINGS_KEY] || {}) };
+  if (cachedSettings) return cachedSettings;
+  if (!loadingPromise) {
+    loadingPromise = chrome.storage.sync
+      .get(SETTINGS_KEY)
+      .then((data) => {
+        cachedSettings = { ...DEFAULT_SETTINGS, ...(data[SETTINGS_KEY] || {}) };
+        return cachedSettings;
+      })
+      .catch((err) => {
+        // Don't poison the promise — fall back to defaults so later
+        // saveSettings calls still work; subsequent reads will hit the
+        // cached defaults rather than retrying a broken storage layer.
+        console.warn("[DrakonRhym] storage.sync.get failed:", err);
+        cachedSettings = { ...DEFAULT_SETTINGS };
+        return cachedSettings;
+      });
+  }
+  return loadingPromise;
 }
 
-async function saveSettings(settings) {
-  const merged = { ...(await getSettings()), ...settings };
-  await chrome.storage.sync.set({ [SETTINGS_KEY]: merged });
-  return merged;
+function flushSave() {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  firstPendingAt = 0;
+  if (!cachedSettings) return;
+  const snapshot = { ...cachedSettings };
+  chrome.storage.sync.set({ [SETTINGS_KEY]: snapshot }).catch((err) => {
+    console.warn("[DrakonRhym] storage.sync.set failed:", err);
+  });
+}
+
+function scheduleSave() {
+  if (!firstPendingAt) firstPendingAt = Date.now();
+  const elapsed = Date.now() - firstPendingAt;
+  const delay = Math.min(SAVE_DEBOUNCE_MS, Math.max(0, SAVE_MAX_WAIT_MS - elapsed));
+  if (saveTimer) clearTimeout(saveTimer);
+  if (delay === 0) {
+    flushSave();
+  } else {
+    saveTimer = setTimeout(flushSave, delay);
+  }
+}
+
+async function saveSettings(patch) {
+  const current = await getSettings();
+  Object.assign(current, patch);
+  scheduleSave();
+  return current;
 }
 
 function buildBaseUrl() {
@@ -54,9 +107,14 @@ chrome.runtime.onInstalled.addListener(async () => {
   await chrome.storage.sync.set({ [SETTINGS_KEY]: current });
 });
 
+// MV3 may suspend the service worker; flush any pending debounced write so
+// the latest in-memory value reaches disk before the worker is torn down.
+if (chrome.runtime.onSuspend) {
+  chrome.runtime.onSuspend.addListener(flushSave);
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("SW received:", message); 
-    (async () => {
+  (async () => {
     switch (message?.action) {
       case "getSettings": {
         sendResponse({ settings: await getSettings() });

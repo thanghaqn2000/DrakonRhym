@@ -1,11 +1,38 @@
 {
   "appName": {
-    "message": "DrakonRhym"
+    "message": "Drakon Rhym"
   },
   "shortDesc": {
-    "message": "Use DrakonPitch to easily change key of songs. Add this intuitive online pitch shifter plugin and transpose music effortlessly!"
+    "message": "Realtime pitch shifter for any web audio. Tune YouTube, SoundCloud and other browser sound without converting files."
   },
   "storeDesc": {
-    "message": "Introducing DrakonPitch, your ultimate Chrome extension for pitch-perfect musical experiences! 🎵 Elevate your practice, karaoke nights and jamming sessions with this versatile online pitch shifter. 🚀\n\n🎤 Empowering Singers:\nDrakonPitch isn't just an extension; it's your musical ally. Singers, rejoice! Say goodbye to struggling with high or low notes during practice. Effortlessly change the key of songs with this valuable companion for singers refining their vocal skills.\n\n🎹 Perfect for Musicians:\nFor instrumentalists, playing along with your favorite tracks is a breeze. Easily transpose music to the most convenient key for your instrument, making every practice session more enjoyable and productive.\n\n🎧 DrakonPitch in Action:\nPicture this – you're jamming along to the music, and the key just doesn't quite fit. You just:\n➤ Access the extension effortlessly from your Chrome browser.\n➤ Navigate to your chosen song on YouTube or any audio platform.\n➤ Simply adjust the music to your liking, transforming the song into your perfect key.\n\n🎧 How to Use:\n1️⃣ Install DrakonPitch Extension: Add the extension to your Chrome browser in seconds.\n2️⃣ Select Your Music: Open your audio or video, and let the song key changer work its magic.\n3️⃣ Adjust Key: Use the intuitive controls to change the key of the song to your liking.\n4️⃣ Enjoy Personalized Music: Dive into a new world of music with your customized pitch-shifted tracks.\n\n🎵 Key Features:\n1️. Extension: Experience the power of a dedicated DrakonPitch extension right in your browser. There is no need for standalone software; this plugin does it all online!\n2️. Online: Whether you're a musician, singer, or just a music enthusiast, our online pitch shifter provides a quick and easy way to modify the pitch of any audio track.\n3️. Ease: Take control of your music's key effortlessly. Transpose music to match your vocal range or adapt it to suit different instruments.\n4️. YouTube: Unleash the potential to modify key directly on YouTube videos. Enjoy a customized musical experience on the world's most popular video platform.\n5️. Seamless: With DrakonPitch, altering the pitch of a song is as simple as a few clicks. Enjoy endless possibilities for creativity and personalization.\n\n🌟 Unlocking Musical Freedom:\n• Customizable Practice Sessions: Tailor your practice sessions to match your vocal range, helping you build confidence and easily tackle challenging songs.\n• Karaoke Night Brilliance: Karaoke enthusiasts, transform any track into your ideal key for a standout performance every time.\n\n🎶 Optimized for Musicians:\nDrakonPitch is more than just a tool; it's your musical companion, offering precision in key adjustments for musicians playing along and versatility for singers aiming to conquer a wide range of songs.\n\n🎤 Dynamic Vocal Practice Sessions:\nSingers, embrace the power of tailored practice sessions! DrakonPitch enables you to adapt any song to your vocal capabilities, turning challenging melodies into opportunities for growth. Experiment with different keys to discover your unique style and build vocal confidence!\n\n🎸 Instrumentalists' Playground:\nFor instrumentalists, DrakonPitch is your virtual playground. Whether you're a guitarist, pianist, or any other musician, easily transpose music to your instrument's sweet spot. Say goodbye to awkward key transitions and hello to fluid, enjoyable jamming sessions.\n\n🚀 DrakonPitch – A Versatile Extension:\n➤ Enhance Karaoke Nights: Take your karaoke nights to the next level by singing in your preferred key.\n➤ Empower Practice Sessions: Develop your vocal or instrumental skills by practicing in the most comfortable key.\n\n🆓 Easily Transpose Music Online:\nDrakonPitch provides a cost-effective solution for musicians and singers looking to transpose music online without any hassle. Change the key of a song online from anywhere you are, ensuring accessibility for all music enthusiasts.\n\n🔄 Why DrakonPitch?\n1️⃣ Musical Freedom: Empower yourself with the freedom to customize your musical experience.\n2️⃣ User-Friendly Interface: the song key changer’s intuitive design makes it easy for beginners and professionals alike.\n3️⃣ Wide Compatibility: Use the extension across various platforms, ensuring seamless integration into your musical workflow.\n\n🔗 Online Accessibility Anytime, Anywhere:\nGone are the days of cumbersome installations. DrakonPitch is your pitch shifter online, accessible wherever you go. From the comfort of your home studio to impromptu jam sessions on the road, enjoy the flexibility of changing pitch online at your convenience.\n\n🌈 Add DrakonPitch Now!\nEmbark on a musical journey filled with creativity, flexibility, and endless possibilities. Add the extension today and transform your musical experience – whether you're singing along, practicing, or playing with your instrument, we've got you covered!"
+    "message": "Drakon Rhym is a realtime pitch shifter for any audio or video that plays in your browser. Drop the key to match your voice, raise it for instrument practice, or experiment for fun — all without converting files.\n\nFeatures\n- Works on YouTube, SoundCloud, Spotify Web and any HTML5 media on the open web\n- Pitch range -6 to +6 semitones with quick-step buttons (-1, -0.5, +0.5, +1)\n- UI in English, Vietnamese and Japanese\n- Settings sync across your Chrome profile\n\nOpen the popup, drag the slider, and the audio in the current tab follows in realtime."
+  },
+  "uiStatusActive": {
+    "message": "ACTIVE"
+  },
+  "uiCurrentPitch": {
+    "message": "CURRENT PITCH"
+  },
+  "uiOriginal": {
+    "message": "ORIGINAL"
+  },
+  "uiResetTone": {
+    "message": "RESET TONE"
+  },
+  "uiExportMp3": {
+    "message": "EXPORT MP3"
+  },
+  "uiLangTitle": {
+    "message": "Language"
+  },
+  "uiExportComingSoon": {
+    "message": "Export MP3 feature is coming soon."
+  },
+  "uiNeedsRefresh": {
+    "message": "Refresh this tab to start using Drakon Rhym."
+  },
+  "uiRefreshButton": {
+    "message": "Refresh"
   }
 }
