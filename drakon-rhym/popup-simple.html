@@ -304,7 +304,7 @@
     </style>
   </head>
   <body>
-    <div class="overlay" id="refreshBanner" hidden role="alertdialog" aria-modal="true">
+    <div class="overlay" id="refreshBanner" hidden role="alertdialog" aria-modal="true" aria-labelledby="refreshBannerText">
       <div class="overlay-card">
         <div class="overlay-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -313,7 +313,7 @@
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
           </svg>
         </div>
-        <p class="overlay-text" data-i18n="uiNeedsRefresh">Hãy refresh tab này để bắt đầu sử dụng extension.</p>
+        <p id="refreshBannerText" class="overlay-text" data-i18n="uiNeedsRefresh">Hãy tải lại tab này để bắt đầu sử dụng tiện ích.</p>
         <button class="overlay-action" id="refreshTab" type="button" data-i18n="uiRefreshButton">Tải lại</button>
       </div>
     </div>

@@ -89,7 +89,15 @@ function markActiveLang(code) {
 
 async function setLanguage(code) {
   const lang = SUPPORTED_LANGS.includes(code) ? code : "vi";
-  currentMessages = await loadLocale(lang);
+  try {
+    currentMessages = await loadLocale(lang);
+  } catch (err) {
+    // Fetching the locale JSON shouldn't be able to fail for an extension
+    // file, but if it does (Chrome bug, corrupt install), keep the popup
+    // usable by falling back to the HTML's inline text via t()'s fallback.
+    console.warn("[DrakonRhym] loadLocale failed:", err);
+    currentMessages = {};
+  }
   applyTexts();
   markActiveLang(lang);
   try {
