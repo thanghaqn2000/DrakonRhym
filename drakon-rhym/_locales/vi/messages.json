@@ -28,5 +28,11 @@
   },
   "uiExportComingSoon": {
     "message": "Tính năng Xuất MP3 đang phát triển."
+  },
+  "uiNeedsRefresh": {
+    "message": "Hãy refresh tab này để bắt đầu sử dụng extension."
+  },
+  "uiRefreshButton": {
+    "message": "Tải lại"
   }
 }

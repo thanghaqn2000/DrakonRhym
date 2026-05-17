@@ -246,6 +246,36 @@
         margin-top: 8px;
       }
       .action-btn.primary:hover { background: var(--primary-hover); }
+      .banner {
+        background: rgba(251, 191, 36, 0.12);
+        border: 1px solid rgba(251, 191, 36, 0.35);
+        color: #fbbf24;
+        border-radius: 9px;
+        padding: 8px 10px;
+        font-size: 11px;
+        line-height: 1.35;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 9px;
+      }
+      .banner[hidden] { display: none; }
+      .banner-text { flex: 1; }
+      .banner-action {
+        background: #f59e0b;
+        color: #0a1428;
+        border: none;
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        font-family: inherit;
+        flex-shrink: 0;
+      }
+      .banner-action:hover { background: #d97706; }
     </style>
   </head>
   <body>
@@ -275,6 +305,11 @@
           <button class="lang-item" type="button" data-lang="ja">日本語</button>
         </div>
       </div>
+    </div>
+
+    <div class="banner" id="refreshBanner" hidden role="status">
+      <span class="banner-text" data-i18n="uiNeedsRefresh">Hãy refresh tab này để bắt đầu sử dụng extension.</span>
+      <button class="banner-action" id="refreshTab" type="button" data-i18n="uiRefreshButton">Tải lại</button>
     </div>
 
     <div class="card current-tone">

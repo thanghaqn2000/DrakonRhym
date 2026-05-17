@@ -10,6 +10,8 @@ const resetBtn = document.getElementById("reset");
 const exportBtn = document.getElementById("exportMp3");
 const langBtn = document.getElementById("langToggle");
 const langMenu = document.getElementById("langMenu");
+const refreshBanner = document.getElementById("refreshBanner");
+const refreshBtn = document.getElementById("refreshTab");
 const avatar = document.getElementById("avatar");
 
 avatar.src = "icons/avatar.png";
@@ -122,8 +124,34 @@ async function initLanguage() {
   await setLanguage(initial);
 }
 
+async function checkActiveTabReady() {
+  let tab;
+  try {
+    [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  } catch (_) {
+    return;
+  }
+  if (!tab?.id || !tab.url || !/^https?:/i.test(tab.url)) {
+    refreshBanner.hidden = true;
+    return;
+  }
+  try {
+    const res = await chrome.tabs.sendMessage(tab.id, { action: "ping" });
+    refreshBanner.hidden = !!res?.pong;
+  } catch (_) {
+    refreshBanner.hidden = false;
+  }
+  if (!refreshBanner.hidden) {
+    refreshBtn.onclick = () => {
+      chrome.tabs.reload(tab.id);
+      window.close();
+    };
+  }
+}
+
 async function init() {
   await initLanguage();
+  checkActiveTabReady();
 
   const response = await chrome.runtime.sendMessage({ action: "getSettings" });
   const settings = response?.settings || {};
