@@ -12,6 +12,7 @@ const langBtn = document.getElementById("langToggle");
 const langMenu = document.getElementById("langMenu");
 const refreshBanner = document.getElementById("refreshBanner");
 const refreshBtn = document.getElementById("refreshTab");
+const mainContent = document.getElementById("mainContent");
 const avatar = document.getElementById("avatar");
 
 avatar.src = "icons/avatar.png";
@@ -124,6 +125,36 @@ async function initLanguage() {
   await setLanguage(initial);
 }
 
+async function pingTab(tabId) {
+  // Content scripts run at document_start but the isolated listener is
+  // registered synchronously; a single retry covers the small window
+  // where the popup opens mid-navigation before the script has run.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await chrome.tabs.sendMessage(
+        tabId,
+        { action: "ping" },
+        { frameId: 0 },
+      );
+      if (res?.pong) return true;
+    } catch (_) {}
+    if (attempt === 0) await new Promise((r) => setTimeout(r, 200));
+  }
+  return false;
+}
+
+function setOverlay(visible, tabId) {
+  refreshBanner.hidden = !visible;
+  mainContent.inert = visible;
+  if (visible) {
+    refreshBtn.onclick = () => {
+      chrome.tabs.reload(tabId);
+      window.close();
+    };
+    refreshBtn.focus();
+  }
+}
+
 async function checkActiveTabReady() {
   let tab;
   try {
@@ -132,26 +163,16 @@ async function checkActiveTabReady() {
     return;
   }
   if (!tab?.id || !tab.url || !/^https?:/i.test(tab.url)) {
-    refreshBanner.hidden = true;
+    setOverlay(false);
     return;
   }
-  try {
-    const res = await chrome.tabs.sendMessage(tab.id, { action: "ping" });
-    refreshBanner.hidden = !!res?.pong;
-  } catch (_) {
-    refreshBanner.hidden = false;
-  }
-  if (!refreshBanner.hidden) {
-    refreshBtn.onclick = () => {
-      chrome.tabs.reload(tab.id);
-      window.close();
-    };
-  }
+  const ready = await pingTab(tab.id);
+  setOverlay(!ready, tab.id);
 }
 
 async function init() {
   await initLanguage();
-  checkActiveTabReady();
+  await checkActiveTabReady();
 
   const response = await chrome.runtime.sendMessage({ action: "getSettings" });
   const settings = response?.settings || {};

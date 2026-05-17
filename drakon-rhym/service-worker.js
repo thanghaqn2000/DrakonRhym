@@ -20,10 +20,20 @@ let firstPendingAt = 0;
 async function getSettings() {
   if (cachedSettings) return cachedSettings;
   if (!loadingPromise) {
-    loadingPromise = chrome.storage.sync.get(SETTINGS_KEY).then((data) => {
-      cachedSettings = { ...DEFAULT_SETTINGS, ...(data[SETTINGS_KEY] || {}) };
-      return cachedSettings;
-    });
+    loadingPromise = chrome.storage.sync
+      .get(SETTINGS_KEY)
+      .then((data) => {
+        cachedSettings = { ...DEFAULT_SETTINGS, ...(data[SETTINGS_KEY] || {}) };
+        return cachedSettings;
+      })
+      .catch((err) => {
+        // Don't poison the promise — fall back to defaults so later
+        // saveSettings calls still work; subsequent reads will hit the
+        // cached defaults rather than retrying a broken storage layer.
+        console.warn("[DrakonRhym] storage.sync.get failed:", err);
+        cachedSettings = { ...DEFAULT_SETTINGS };
+        return cachedSettings;
+      });
   }
   return loadingPromise;
 }
