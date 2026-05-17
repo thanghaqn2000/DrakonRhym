@@ -98,11 +98,10 @@ async function setLanguage(code) {
 }
 
 function detectDefaultLang() {
-  const ui = (chrome.i18n?.getUILanguage?.() || navigator.language || "vi").toLowerCase();
+  const ui = (chrome.i18n?.getUILanguage?.() || navigator.language || "en").toLowerCase();
   if (ui.startsWith("vi")) return "vi";
   if (ui.startsWith("ja")) return "ja";
-  if (ui.startsWith("en")) return "en";
-  return "vi";
+  return "en";
 }
 
 function openMenu() {
