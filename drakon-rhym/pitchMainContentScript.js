@@ -91,11 +91,35 @@
     return ctx.__drakonPitchModule;
   }
 
+  // Page CSP can forbid WebAssembly (no 'unsafe-eval' / 'wasm-unsafe-eval').
+  // AudioWorklet inherits the host document's CSP, so smartProcessor's wasm
+  // module compile fails inside the worklet and surfaces as a noisy
+  // Uncaught RuntimeError that we cannot catch from the main thread. Probe
+  // once per page and skip worklet wiring when wasm is blocked — audio
+  // still flows passthrough through the gain node we already wired.
+  let wasmProbe = null;
+  function isWasmAllowed() {
+    if (!wasmProbe) {
+      wasmProbe = (async () => {
+        try {
+          await WebAssembly.instantiate(
+            new Uint8Array([0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]),
+          );
+          return true;
+        } catch (_) {
+          return false;
+        }
+      })();
+    }
+    return wasmProbe;
+  }
+
   async function wire(ctx, source, gain) {
     if (!state.baseUrl) {
       state.pending.push({ ctx, source, gain });
       return;
     }
+    if (!(await isWasmAllowed())) return;
     try {
       await ensureModule(ctx);
       const node = new AudioWorkletNode(ctx, "extensions-ee-pitch-changer-s", {
@@ -103,6 +127,15 @@
         numberOfOutputs: 1,
         outputChannelCount: [2],
       });
+      node.onprocessorerror = () => {
+        // Worklet processor died after wiring (e.g. CSP we failed to detect
+        // via the probe). Restore source -> gain passthrough so the page's
+        // audio keeps playing instead of going silent.
+        try { source.disconnect(node); } catch (_) {}
+        try { node.disconnect(gain); } catch (_) {}
+        try { source.connect(gain); } catch (_) {}
+        state.active.delete(node);
+      };
       updateNode(node);
       try {
         source.disconnect(gain);
