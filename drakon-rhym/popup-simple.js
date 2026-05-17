@@ -1,15 +1,21 @@
 const MIN = -6;
 const MAX = 6;
 const STEP = 0.1;
+const SUPPORTED_LANGS = ["en", "vi", "ja"];
+const LANG_STORAGE_KEY = "uiLang";
 
 const slider = document.getElementById("pitch");
 const toneValue = document.getElementById("toneValue");
 const resetBtn = document.getElementById("reset");
 const exportBtn = document.getElementById("exportMp3");
 const langBtn = document.getElementById("langToggle");
+const langMenu = document.getElementById("langMenu");
 const avatar = document.getElementById("avatar");
 
 avatar.src = "icons/avatar.png";
+
+const localeCache = {};
+let currentMessages = {};
 
 function clamp(v) {
   const rounded = Math.round(v / STEP) * STEP;
@@ -50,16 +56,82 @@ async function push(value) {
   } catch (_) {}
 }
 
+function t(key, fallback) {
+  return currentMessages[key]?.message ?? fallback ?? key;
+}
+
+async function loadLocale(code) {
+  if (localeCache[code]) return localeCache[code];
+  const url = chrome.runtime.getURL(`_locales/${code}/messages.json`);
+  const res = await fetch(url);
+  const data = await res.json();
+  localeCache[code] = data;
+  return data;
+}
+
+function applyTexts() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    el.textContent = t(el.dataset.i18n, el.textContent);
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    el.title = t(el.dataset.i18nTitle, el.title);
+  });
+}
+
+function markActiveLang(code) {
+  langMenu.querySelectorAll(".lang-item").forEach((item) => {
+    item.classList.toggle("active", item.dataset.lang === code);
+  });
+}
+
+async function setLanguage(code) {
+  const lang = SUPPORTED_LANGS.includes(code) ? code : "vi";
+  currentMessages = await loadLocale(lang);
+  applyTexts();
+  markActiveLang(lang);
+  try {
+    await chrome.storage.sync.set({ [LANG_STORAGE_KEY]: lang });
+  } catch (_) {}
+}
+
+function detectDefaultLang() {
+  const ui = (chrome.i18n?.getUILanguage?.() || navigator.language || "vi").toLowerCase();
+  if (ui.startsWith("vi")) return "vi";
+  if (ui.startsWith("ja")) return "ja";
+  if (ui.startsWith("en")) return "en";
+  return "vi";
+}
+
+function openMenu() {
+  langMenu.hidden = false;
+  langBtn.setAttribute("aria-expanded", "true");
+}
+
+function closeMenu() {
+  langMenu.hidden = true;
+  langBtn.setAttribute("aria-expanded", "false");
+}
+
+async function initLanguage() {
+  let stored;
+  try {
+    const data = await chrome.storage.sync.get(LANG_STORAGE_KEY);
+    stored = data?.[LANG_STORAGE_KEY];
+  } catch (_) {}
+  const initial = SUPPORTED_LANGS.includes(stored) ? stored : detectDefaultLang();
+  await setLanguage(initial);
+}
+
 async function init() {
+  await initLanguage();
+
   const response = await chrome.runtime.sendMessage({ action: "getSettings" });
   const settings = response?.settings || {};
-  const initial = clamp(fromSettings(settings));
-  // Persist back if storage had out-of-range or stale fractional data, so the
-  // UI value and persisted value stay in sync.
-  if (initial !== fromSettings(settings)) {
-    push(initial);
+  const initialValue = clamp(fromSettings(settings));
+  if (initialValue !== fromSettings(settings)) {
+    push(initialValue);
   } else {
-    render(initial);
+    render(initialValue);
   }
 
   slider.addEventListener("input", () => {
@@ -76,11 +148,26 @@ async function init() {
   resetBtn.addEventListener("click", () => push(0));
 
   exportBtn.addEventListener("click", () => {
-    alert("Tính năng Xuất MP3 đang phát triển.");
+    alert(t("uiExportComingSoon", "Export MP3 feature is coming soon."));
   });
 
-  langBtn.addEventListener("click", () => {
-    alert("Tính năng đổi ngôn ngữ đang phát triển.");
+  langBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (langMenu.hidden) openMenu();
+    else closeMenu();
+  });
+
+  langMenu.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const item = e.target.closest(".lang-item");
+    if (!item) return;
+    setLanguage(item.dataset.lang);
+    closeMenu();
+  });
+
+  document.addEventListener("click", () => closeMenu());
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
   });
 }
 

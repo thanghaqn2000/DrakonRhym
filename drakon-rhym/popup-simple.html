@@ -75,6 +75,7 @@
         border-radius: 50%;
         background: var(--status);
       }
+      .lang-wrap { position: relative; flex-shrink: 0; }
       .icon-btn {
         width: 24px;
         height: 24px;
@@ -89,7 +90,41 @@
         padding: 0;
         flex-shrink: 0;
       }
-      .icon-btn:hover { background: #18334f; }
+      .icon-btn:hover, .icon-btn[aria-expanded="true"] {
+        background: #18334f;
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .lang-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
+        min-width: 130px;
+        background: #14283f;
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        z-index: 10;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+      }
+      .lang-menu[hidden] { display: none; }
+      .lang-item {
+        background: transparent;
+        color: var(--text);
+        border: none;
+        text-align: left;
+        padding: 7px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .lang-item:hover { background: rgba(56, 189, 248, 0.1); }
+      .lang-item.active { color: var(--accent); }
       .card {
         background: var(--card);
         border: 1px solid var(--card-border);
@@ -217,18 +252,33 @@
     <div class="header">
       <img id="avatar" class="avatar" alt="" />
       <h1 class="title">Drakon Rhym</h1>
-      <span class="status-pill">Đang bật</span>
-      <button class="icon-btn" id="langToggle" type="button" title="Ngôn ngữ">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="2" y1="12" x2="22" y2="12"></line>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-        </svg>
-      </button>
+      <span class="status-pill"><span data-i18n="uiStatusActive">Đang bật</span></span>
+      <div class="lang-wrap">
+        <button
+          class="icon-btn"
+          id="langToggle"
+          type="button"
+          data-i18n-title="uiLangTitle"
+          aria-haspopup="listbox"
+          aria-expanded="false"
+          title="Ngôn ngữ"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </button>
+        <div class="lang-menu" id="langMenu" role="listbox" hidden>
+          <button class="lang-item" type="button" data-lang="en">English</button>
+          <button class="lang-item" type="button" data-lang="vi">Tiếng Việt</button>
+          <button class="lang-item" type="button" data-lang="ja">日本語</button>
+        </div>
+      </div>
     </div>
 
     <div class="card current-tone">
-      <span class="label">Tone hiện tại</span>
+      <span class="label" data-i18n="uiCurrentPitch">Tone hiện tại</span>
       <div>
         <span class="value" id="toneValue">0.0</span><span class="unit">st</span>
       </div>
@@ -238,7 +288,7 @@
       <input id="pitch" type="range" min="-6" max="6" step="0.1" value="0" />
       <div class="scale">
         <span>-6 ST</span>
-        <span class="center">Gốc</span>
+        <span class="center" data-i18n="uiOriginal">Gốc</span>
         <span class="right">+6 ST</span>
       </div>
       <div class="quick-row">
@@ -254,9 +304,9 @@
         <polyline points="1 4 1 10 7 10"></polyline>
         <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
       </svg>
-      Đặt lại tone
+      <span data-i18n="uiResetTone">Đặt lại tone</span>
     </button>
-    <button class="action-btn primary" id="exportMp3" type="button">Xuất MP3</button>
+    <button class="action-btn primary" id="exportMp3" type="button" data-i18n="uiExportMp3">Xuất MP3</button>
 
     <script src="popup-simple.js"></script>
   </body>
