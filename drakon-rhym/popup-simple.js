@@ -1,53 +1,86 @@
-const defaults = {
-  pitchValueCents: 0,
-  pitchValueSemitones: 0,
-  windowSizeMilliseconds: 120,
-};
+const MIN = -6;
+const MAX = 6;
+const STEP = 0.1;
 
-const semitonesInput = document.getElementById("semitones");
-const centsInput = document.getElementById("cents");
-const windowSizeInput = document.getElementById("windowSizeMilliseconds");
-const resetButton = document.getElementById("reset");
+const slider = document.getElementById("pitch");
+const toneValue = document.getElementById("toneValue");
+const resetBtn = document.getElementById("reset");
+const exportBtn = document.getElementById("exportMp3");
+const langBtn = document.getElementById("langToggle");
+const avatar = document.getElementById("avatar");
 
-const semitonesValue = document.getElementById("semitonesValue");
-const centsValue = document.getElementById("centsValue");
-const windowSizeValue = document.getElementById("windowSizeValue");
+avatar.src = "icons/avatar.png";
 
-function render(settings) {
-  semitonesInput.value = String(settings.pitchValueSemitones);
-  centsInput.value = String(settings.pitchValueCents);
-  windowSizeInput.value = String(settings.windowSizeMilliseconds);
-
-  semitonesValue.textContent = `${settings.pitchValueSemitones} st`;
-  centsValue.textContent = `${settings.pitchValueCents} ct`;
-  windowSizeValue.textContent = `${settings.windowSizeMilliseconds} ms`;
+function clamp(v) {
+  const rounded = Math.round(v / STEP) * STEP;
+  return Math.max(MIN, Math.min(MAX, Number(rounded.toFixed(1))));
 }
 
-async function updateSettings() {
-  const payload = {
-    pitchValueSemitones: Number(semitonesInput.value),
-    pitchValueCents: Number(centsInput.value),
-    windowSizeMilliseconds: Number(windowSizeInput.value),
-  };
+function toSettings(value) {
+  const v = Number(value) || 0;
+  const sign = v < 0 ? -1 : 1;
+  const abs = Math.abs(v);
+  const semitones = Math.trunc(abs) * sign;
+  const cents = Math.round((abs - Math.trunc(abs)) * 100) * sign;
+  return { pitchValueSemitones: semitones, pitchValueCents: cents };
+}
 
-  render({ ...defaults, ...payload });
-  await chrome.runtime.sendMessage({ action: "setSettings", settings: payload });
+function fromSettings(settings) {
+  const semis = Number(settings.pitchValueSemitones) || 0;
+  const cents = Number(settings.pitchValueCents) || 0;
+  return semis + cents / 100;
+}
+
+function render(value) {
+  slider.value = String(value);
+  toneValue.textContent = value.toFixed(1);
+  const pct = ((value - MIN) / (MAX - MIN)) * 100;
+  const center = 50;
+  slider.style.setProperty("--fill-start", `${Math.min(center, pct)}%`);
+  slider.style.setProperty("--fill-end", `${Math.max(center, pct)}%`);
+}
+
+async function push(value) {
+  render(value);
+  try {
+    await chrome.runtime.sendMessage({
+      action: "setSettings",
+      settings: toSettings(value),
+    });
+  } catch (_) {}
 }
 
 async function init() {
   const response = await chrome.runtime.sendMessage({ action: "getSettings" });
-  const settings = { ...defaults, ...(response?.settings || {}) };
-  render(settings);
+  const settings = response?.settings || {};
+  const initial = clamp(fromSettings(settings));
+  // Persist back if storage had out-of-range or stale fractional data, so the
+  // UI value and persisted value stay in sync.
+  if (initial !== fromSettings(settings)) {
+    push(initial);
+  } else {
+    render(initial);
+  }
 
-  semitonesInput.addEventListener("input", updateSettings);
-  centsInput.addEventListener("input", updateSettings);
-  windowSizeInput.addEventListener("input", updateSettings);
-  resetButton.addEventListener("click", async () => {
-    render(defaults);
-    await chrome.runtime.sendMessage({
-      action: "setSettings",
-      settings: defaults,
+  slider.addEventListener("input", () => {
+    push(clamp(Number(slider.value)));
+  });
+
+  document.querySelectorAll(".quick-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const delta = Number(btn.dataset.delta) || 0;
+      push(clamp(Number(slider.value) + delta));
     });
+  });
+
+  resetBtn.addEventListener("click", () => push(0));
+
+  exportBtn.addEventListener("click", () => {
+    alert("Tính năng Xuất MP3 đang phát triển.");
+  });
+
+  langBtn.addEventListener("click", () => {
+    alert("Tính năng đổi ngôn ngữ đang phát triển.");
   });
 }
 

@@ -5,78 +5,258 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Drakon Rhym</title>
     <style>
+      :root {
+        --bg: #0a1428;
+        --card: #11233b;
+        --card-border: #1f3a5a;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --primary: #1f9d4d;
+        --primary-hover: #178a40;
+        --status: #22c55e;
+        --status-bg: rgba(34, 197, 94, 0.15);
+      }
+      * { box-sizing: border-box; }
       body {
         margin: 0;
-        padding: 12px;
-        width: 300px;
+        padding: 11px;
+        width: 264px;
+        background: var(--bg);
+        color: var(--text);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: #0f172a;
-        color: #e2e8f0;
+        font-size: 12px;
       }
-      h1 {
-        margin: 0 0 12px;
-        font-size: 15px;
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 9px;
+      }
+      .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        border: 1px solid var(--card-border);
+        background: #ffffff;
+        object-fit: cover;
+        object-position: center 38%;
+        flex-shrink: 0;
+      }
+      .title {
+        flex: 1;
+        min-width: 0;
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #7dd3fc;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 7px;
+        border-radius: 999px;
+        background: var(--status-bg);
+        color: var(--status);
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        flex-shrink: 0;
+      }
+      .status-pill::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--status);
+      }
+      .icon-btn {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        color: var(--text);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        flex-shrink: 0;
+      }
+      .icon-btn:hover { background: #18334f; }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        border-radius: 11px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+      }
+      .current-tone {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .current-tone .label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .current-tone .value {
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.02em;
+      }
+      .current-tone .unit {
+        font-size: 12px;
+        color: var(--muted);
+        margin-left: 2px;
         font-weight: 600;
       }
-      .row {
-        margin-bottom: 12px;
-      }
-      label {
-        display: block;
-        margin-bottom: 6px;
-        font-size: 13px;
-      }
       input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
         width: 100%;
+        background: transparent;
+        margin: 2px 0 8px;
       }
-      .value {
-        font-size: 12px;
-        color: #94a3b8;
+      input[type="range"]::-webkit-slider-runnable-track {
+        height: 3px;
+        background: linear-gradient(
+          to right,
+          var(--card-border) 0%,
+          var(--card-border) var(--fill-start, 50%),
+          var(--accent) var(--fill-start, 50%),
+          var(--accent) var(--fill-end, 50%),
+          var(--card-border) var(--fill-end, 50%),
+          var(--card-border) 100%
+        );
+        border-radius: 999px;
       }
-      button {
-        background: #1e293b;
-        color: #e2e8f0;
-        border: 1px solid #334155;
-        border-radius: 6px;
-        padding: 6px 10px;
-        font-size: 12px;
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--accent);
+        margin-top: -5px;
+        box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.18);
         cursor: pointer;
       }
-      button:hover {
-        background: #334155;
+      .scale {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        font-size: 10px;
+        color: var(--muted);
+        font-weight: 700;
+        letter-spacing: 0.05em;
       }
+      .scale .center {
+        text-align: center;
+        color: var(--accent);
+        text-transform: uppercase;
+      }
+      .scale .right { text-align: right; }
+      .quick-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .quick-btn {
+        background: transparent;
+        color: #7dd3fc;
+        border: 1px solid var(--card-border);
+        border-radius: 7px;
+        padding: 6px 0;
+        font-weight: 700;
+        font-size: 11px;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .quick-btn:hover { background: rgba(56, 189, 248, 0.08); }
+      .action-btn {
+        width: 100%;
+        padding: 9px;
+        border-radius: 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border: 1px solid var(--card-border);
+        font-family: inherit;
+      }
+      .action-btn.secondary {
+        background: var(--card);
+        color: var(--text);
+      }
+      .action-btn.secondary:hover { background: #17304b; }
+      .action-btn.primary {
+        background: var(--primary);
+        color: #ffffff;
+        border-color: transparent;
+        margin-top: 8px;
+      }
+      .action-btn.primary:hover { background: var(--primary-hover); }
     </style>
   </head>
   <body>
-    <h1>Drakon Rhym</h1>
-
-    <div class="row">
-      <label for="semitones">Semitones</label>
-      <input id="semitones" type="range" min="-12" max="12" step="1" />
-      <div id="semitonesValue" class="value">0 st</div>
+    <div class="header">
+      <img id="avatar" class="avatar" alt="" />
+      <h1 class="title">Drakon Rhym</h1>
+      <span class="status-pill">Đang bật</span>
+      <button class="icon-btn" id="langToggle" type="button" title="Ngôn ngữ">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+      </button>
     </div>
 
-    <div class="row">
-      <label for="cents">Cents</label>
-      <input id="cents" type="range" min="-100" max="100" step="1" />
-      <div id="centsValue" class="value">0 ct</div>
+    <div class="card current-tone">
+      <span class="label">Tone hiện tại</span>
+      <div>
+        <span class="value" id="toneValue">0.0</span><span class="unit">st</span>
+      </div>
     </div>
 
-    <div class="row">
-      <label for="windowSizeMilliseconds">Window Size (ms)</label>
-      <input
-        id="windowSizeMilliseconds"
-        type="range"
-        min="20"
-        max="200"
-        step="5"
-      />
-      <div id="windowSizeValue" class="value">120 ms</div>
+    <div class="card">
+      <input id="pitch" type="range" min="-6" max="6" step="0.1" value="0" />
+      <div class="scale">
+        <span>-6 ST</span>
+        <span class="center">Gốc</span>
+        <span class="right">+6 ST</span>
+      </div>
+      <div class="quick-row">
+        <button class="quick-btn" data-delta="-1" type="button">[-1]</button>
+        <button class="quick-btn" data-delta="-0.5" type="button">[-0.5]</button>
+        <button class="quick-btn" data-delta="0.5" type="button">[+0.5]</button>
+        <button class="quick-btn" data-delta="1" type="button">[+1]</button>
+      </div>
     </div>
 
-    <div class="row">
-      <button id="reset" type="button">Reset to 0</button>
-    </div>
+    <button class="action-btn secondary" id="reset" type="button">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="1 4 1 10 7 10"></polyline>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+      </svg>
+      Đặt lại tone
+    </button>
+    <button class="action-btn primary" id="exportMp3" type="button">Xuất MP3</button>
 
     <script src="popup-simple.js"></script>
   </body>
