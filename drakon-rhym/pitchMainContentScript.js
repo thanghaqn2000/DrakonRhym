@@ -20,6 +20,40 @@
 
   const mediaToGain = new WeakMap();
 
+  // Chrome's autoplay policy rejects AudioContext.resume() unless the call
+  // happens after a user gesture. Queue contexts that want to resume until
+  // we observe one, then drain.
+  let userGestureSeen = false;
+  const ctxAwaitingResume = new Set();
+
+  function safeResume(ctx) {
+    if (!ctx || ctx.state !== "suspended") return;
+    if (userGestureSeen) {
+      ctx.resume().catch(() => {});
+    } else {
+      ctxAwaitingResume.add(ctx);
+    }
+  }
+
+  function onFirstGesture() {
+    if (userGestureSeen) return;
+    userGestureSeen = true;
+    ctxAwaitingResume.forEach((ctx) => {
+      if (ctx && ctx.state === "suspended") {
+        ctx.resume().catch(() => {});
+      }
+    });
+    ctxAwaitingResume.clear();
+  }
+
+  ["pointerdown", "mousedown", "keydown", "touchstart"].forEach((ev) => {
+    window.addEventListener(ev, onFirstGesture, {
+      capture: true,
+      passive: true,
+      once: true,
+    });
+  });
+
   function pitchFactor() {
     const total =
       (state.settings.pitchValueSemitones || 0) * 100 +
@@ -183,11 +217,7 @@
       console.warn("[DrakonRhym] attachMedia failed:", err);
       return;
     }
-    media.addEventListener("playing", () => {
-      if (state.sharedCtx && state.sharedCtx.state === "suspended") {
-        state.sharedCtx.resume().catch(() => {});
-      }
-    });
+    media.addEventListener("playing", () => safeResume(state.sharedCtx));
   }
 
   function drainPendingMedia() {
