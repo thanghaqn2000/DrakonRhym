@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Drakon Rhym</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 12px;
+        width: 300px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .row {
+        margin-bottom: 12px;
+      }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+      }
+      input[type="range"] {
+        width: 100%;
+      }
+      .value {
+        font-size: 12px;
+        color: #94a3b8;
+      }
+      button {
+        background: #1e293b;
+        color: #e2e8f0;
+        border: 1px solid #334155;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #334155;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Drakon Rhym</h1>
+
+    <div class="row">
+      <label for="semitones">Semitones</label>
+      <input id="semitones" type="range" min="-12" max="12" step="1" />
+      <div id="semitonesValue" class="value">0 st</div>
+    </div>
+
+    <div class="row">
+      <label for="cents">Cents</label>
+      <input id="cents" type="range" min="-100" max="100" step="1" />
+      <div id="centsValue" class="value">0 ct</div>
+    </div>
+
+    <div class="row">
+      <label for="windowSizeMilliseconds">Window Size (ms)</label>
+      <input
+        id="windowSizeMilliseconds"
+        type="range"
+        min="20"
+        max="200"
+        step="5"
+      />
+      <div id="windowSizeValue" class="value">120 ms</div>
+    </div>
+
+    <div class="row">
+      <button id="reset" type="button">Reset to 0</button>
+    </div>
+
+    <script src="popup-simple.js"></script>
+  </body>
+</html>
