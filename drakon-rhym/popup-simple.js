@@ -5,7 +5,7 @@ const SUPPORTED_LANGS = ["en", "vi", "ja"];
 const LANG_STORAGE_KEY = "uiLang";
 
 // TODO: change this to the production host of DrakonRhymServer.
-const EXPORT_BASE_URL = "http://localhost:3000";
+const EXPORT_BASE_URL = "http://localhost:8000";
 
 const YOUTUBE_HOSTS = new Set([
   "youtube.com",
