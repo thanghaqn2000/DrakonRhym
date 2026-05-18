@@ -34,5 +34,8 @@
   },
   "uiExportNotYoutube": {
     "message": "Open a YouTube tab to export MP3."
+  },
+  "uiExportOpenFailed": {
+    "message": "Could not open the download tab."
   }
 }

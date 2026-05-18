@@ -7,13 +7,13 @@ const LANG_STORAGE_KEY = "uiLang";
 // TODO: change this to the production host of DrakonRhymServer.
 const EXPORT_BASE_URL = "http://localhost:8000";
 
-const YOUTUBE_HOSTS = new Set([
-  "youtube.com",
-  "www.youtube.com",
-  "m.youtube.com",
-  "music.youtube.com",
-  "youtu.be",
-]);
+function isYoutubeHost(hostname) {
+  return (
+    hostname === "youtu.be" ||
+    hostname === "youtube.com" ||
+    hostname.endsWith(".youtube.com")
+  );
+}
 
 const slider = document.getElementById("pitch");
 const toneValue = document.getElementById("toneValue");
@@ -151,7 +151,7 @@ function getYoutubeUrl(tab) {
   } catch (_) {
     return null;
   }
-  if (!YOUTUBE_HOSTS.has(parsed.hostname)) return null;
+  if (!isYoutubeHost(parsed.hostname)) return null;
   return tab.url;
 }
 
@@ -227,7 +227,8 @@ async function init() {
   resetBtn.addEventListener("click", () => push(0));
 
   exportBtn.addEventListener("click", async () => {
-    const pitch = clamp(Number(slider.value));
+    const raw = Number(slider.value);
+    const pitch = Number.isFinite(raw) ? clamp(raw) : 0;
     let tab;
     try {
       [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -237,14 +238,17 @@ async function init() {
       alert(t("uiExportNotYoutube", "Open a YouTube tab to export MP3."));
       return;
     }
+    // Adding +0 normalises -0 to 0 so the server never sees "-0.0".
+    const pitchStr = (pitch + 0).toFixed(1);
     const target = `${EXPORT_BASE_URL}/download?url=${encodeURIComponent(
       youtubeUrl,
-    )}&pitch=${pitch.toFixed(1)}`;
+    )}&pitch=${pitchStr}`;
     try {
       await chrome.tabs.create({ url: target });
       window.close();
     } catch (err) {
       console.warn("[DrakonRhym] export tab open failed:", err);
+      alert(t("uiExportOpenFailed", "Could not open the download tab."));
     }
   });
 

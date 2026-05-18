@@ -34,5 +34,8 @@
   },
   "uiExportNotYoutube": {
     "message": "Hãy mở một tab YouTube để xuất MP3."
+  },
+  "uiExportOpenFailed": {
+    "message": "Không thể mở tab tải về."
   }
 }

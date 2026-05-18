@@ -34,5 +34,8 @@
   },
   "uiExportNotYoutube": {
     "message": "MP3 を書き出すには YouTube のタブを開いてください。"
+  },
+  "uiExportOpenFailed": {
+    "message": "ダウンロードタブを開けませんでした。"
   }
 }
