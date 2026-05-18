@@ -26,13 +26,16 @@
   "uiLangTitle": {
     "message": "Ngôn ngữ"
   },
-  "uiExportComingSoon": {
-    "message": "Tính năng Xuất MP3 đang phát triển."
-  },
   "uiNeedsRefresh": {
     "message": "Hãy tải lại tab này để bắt đầu sử dụng tiện ích."
   },
   "uiRefreshButton": {
     "message": "Tải lại"
+  },
+  "uiExportNotYoutube": {
+    "message": "Hãy mở một tab YouTube để xuất MP3."
+  },
+  "uiExportOpenFailed": {
+    "message": "Không thể mở tab tải về."
   }
 }

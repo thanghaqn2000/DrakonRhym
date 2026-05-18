@@ -4,6 +4,17 @@ const STEP = 0.1;
 const SUPPORTED_LANGS = ["en", "vi", "ja"];
 const LANG_STORAGE_KEY = "uiLang";
 
+// TODO: change this to the production host of DrakonRhymServer.
+const EXPORT_BASE_URL = "http://localhost:8000";
+
+function isYoutubeHost(hostname) {
+  return (
+    hostname === "youtu.be" ||
+    hostname === "youtube.com" ||
+    hostname.endsWith(".youtube.com")
+  );
+}
+
 const slider = document.getElementById("pitch");
 const toneValue = document.getElementById("toneValue");
 const resetBtn = document.getElementById("reset");
@@ -132,6 +143,18 @@ async function initLanguage() {
   await setLanguage(initial);
 }
 
+function getYoutubeUrl(tab) {
+  if (!tab?.url) return null;
+  let parsed;
+  try {
+    parsed = new URL(tab.url);
+  } catch (_) {
+    return null;
+  }
+  if (!isYoutubeHost(parsed.hostname)) return null;
+  return tab.url;
+}
+
 async function pingTab(tabId) {
   // Content scripts run at document_start but the isolated listener is
   // registered synchronously; a single retry covers the small window
@@ -203,8 +226,30 @@ async function init() {
 
   resetBtn.addEventListener("click", () => push(0));
 
-  exportBtn.addEventListener("click", () => {
-    alert(t("uiExportComingSoon", "Export MP3 feature is coming soon."));
+  exportBtn.addEventListener("click", async () => {
+    const raw = Number(slider.value);
+    const pitch = Number.isFinite(raw) ? clamp(raw) : 0;
+    let tab;
+    try {
+      [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    } catch (_) {}
+    const youtubeUrl = getYoutubeUrl(tab);
+    if (!youtubeUrl) {
+      alert(t("uiExportNotYoutube", "Open a YouTube tab to export MP3."));
+      return;
+    }
+    // Adding +0 normalises -0 to 0 so the server never sees "-0.0".
+    const pitchStr = (pitch + 0).toFixed(1);
+    const target = `${EXPORT_BASE_URL}/download?url=${encodeURIComponent(
+      youtubeUrl,
+    )}&pitch=${pitchStr}`;
+    try {
+      await chrome.tabs.create({ url: target });
+      window.close();
+    } catch (err) {
+      console.warn("[DrakonRhym] export tab open failed:", err);
+      alert(t("uiExportOpenFailed", "Could not open the download tab."));
+    }
   });
 
   langBtn.addEventListener("click", (e) => {

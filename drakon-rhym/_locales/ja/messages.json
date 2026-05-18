@@ -26,13 +26,16 @@
   "uiLangTitle": {
     "message": "言語"
   },
-  "uiExportComingSoon": {
-    "message": "MP3 書き出し機能は開発中です。"
-  },
   "uiNeedsRefresh": {
     "message": "拡張機能を有効にするにはこのタブを更新してください。"
   },
   "uiRefreshButton": {
     "message": "更新"
+  },
+  "uiExportNotYoutube": {
+    "message": "MP3 を書き出すには YouTube のタブを開いてください。"
+  },
+  "uiExportOpenFailed": {
+    "message": "ダウンロードタブを開けませんでした。"
   }
 }
