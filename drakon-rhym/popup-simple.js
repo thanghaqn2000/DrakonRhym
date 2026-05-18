@@ -4,6 +4,17 @@ const STEP = 0.1;
 const SUPPORTED_LANGS = ["en", "vi", "ja"];
 const LANG_STORAGE_KEY = "uiLang";
 
+// TODO: change this to the production host of DrakonRhymServer.
+const EXPORT_BASE_URL = "http://localhost:3000";
+
+const YOUTUBE_HOSTS = new Set([
+  "youtube.com",
+  "www.youtube.com",
+  "m.youtube.com",
+  "music.youtube.com",
+  "youtu.be",
+]);
+
 const slider = document.getElementById("pitch");
 const toneValue = document.getElementById("toneValue");
 const resetBtn = document.getElementById("reset");
@@ -132,6 +143,18 @@ async function initLanguage() {
   await setLanguage(initial);
 }
 
+function getYoutubeUrl(tab) {
+  if (!tab?.url) return null;
+  let parsed;
+  try {
+    parsed = new URL(tab.url);
+  } catch (_) {
+    return null;
+  }
+  if (!YOUTUBE_HOSTS.has(parsed.hostname)) return null;
+  return tab.url;
+}
+
 async function pingTab(tabId) {
   // Content scripts run at document_start but the isolated listener is
   // registered synchronously; a single retry covers the small window
@@ -203,8 +226,26 @@ async function init() {
 
   resetBtn.addEventListener("click", () => push(0));
 
-  exportBtn.addEventListener("click", () => {
-    alert(t("uiExportComingSoon", "Export MP3 feature is coming soon."));
+  exportBtn.addEventListener("click", async () => {
+    const pitch = clamp(Number(slider.value));
+    let tab;
+    try {
+      [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    } catch (_) {}
+    const youtubeUrl = getYoutubeUrl(tab);
+    if (!youtubeUrl) {
+      alert(t("uiExportNotYoutube", "Open a YouTube tab to export MP3."));
+      return;
+    }
+    const target = `${EXPORT_BASE_URL}/download?url=${encodeURIComponent(
+      youtubeUrl,
+    )}&pitch=${pitch.toFixed(1)}`;
+    try {
+      await chrome.tabs.create({ url: target });
+      window.close();
+    } catch (err) {
+      console.warn("[DrakonRhym] export tab open failed:", err);
+    }
   });
 
   langBtn.addEventListener("click", (e) => {

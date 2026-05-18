@@ -26,13 +26,13 @@
   "uiLangTitle": {
     "message": "Language"
   },
-  "uiExportComingSoon": {
-    "message": "Export MP3 feature is coming soon."
-  },
   "uiNeedsRefresh": {
     "message": "Refresh this tab to start using Drakon Rhym."
   },
   "uiRefreshButton": {
     "message": "Refresh"
+  },
+  "uiExportNotYoutube": {
+    "message": "Open a YouTube tab to export MP3."
   }
 }
